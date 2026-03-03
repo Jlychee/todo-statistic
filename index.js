@@ -29,11 +29,16 @@ function getComments() {
 }
 
 function processCommand(command) {
+    const lines = getComments()
     switch (command) {
         case 'exit':
-            getComments();
             process.exit(0);
             break;
+        case 'show':
+            for (const line of lines){
+                console.log(line)
+            }
+            break;  
         default:
             console.log('wrong command');
             break;
