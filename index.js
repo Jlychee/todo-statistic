@@ -16,11 +16,11 @@ function getComments() {
     for (const content of files) {
         const lines = content.split('\n');
         for (const line of lines) {
-            const match = line.match(/\/\/\s*TODO\s*(.*)/);
+            const match = line.match(/\/\/\s*todo:?(.+)/i);
             if (match) {
 
                 const commentText = match[1];
-                const parts = commentText.split(';')
+                const parts = commentText.split(';').map(part => part.trim());
                 const isImportant = commentText.includes('!');
 
                 const [author, data, text] = parts;
@@ -118,3 +118,6 @@ function processCommand(command) {
 
 // TODO you can do it!
 
+//TODO aboba
+//todo abobus
+// todo: abobina
