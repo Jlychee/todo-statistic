@@ -18,13 +18,15 @@ function getComments() {
         for (const line of lines) {
             const match = line.match(/\/\/\s*TODO\s*(.*)/);
             if (match) {
-                comments.push(match[1]);
+                const commentText = match[1];
+                const isImportant = commentText.includes('!');
+                comments.push({
+                    text: commentText,
+                    isImportant : isImportant
+                });
             }
         }
-
-
     }
-    console.log(comments)
     return comments;
 }
 
@@ -36,9 +38,17 @@ function processCommand(command) {
             break;
         case 'show':
             for (const line of lines){
-                console.log(line)
+                console.log(line.text)
             }
-            break;  
+            break;
+
+        case 'important':
+            for (const line of lines){
+                if (line.isImportant) {
+                    console.log(line.text);
+                }
+            }
+            break;
         default:
             console.log('wrong command');
             break;
