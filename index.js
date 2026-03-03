@@ -18,29 +18,56 @@ function getComments() {
         for (const line of lines) {
             const match = line.match(/\/\/\s*TODO\s*(.*)/);
             if (match) {
+
                 const commentText = match[1];
                 const parts = commentText.split(';')
-
                 const isImportant = commentText.includes('!');
-                if (parts.length === 3){
-                    comments.push({
-                    text: parts[2],
-                    isImportant : isImportant, 
-                    author: parts[0], 
-                    data : parts[1],
-                })} else {
-                    comments.push({
-                    text: commentText,
-                    isImportant : isImportant, 
-                    author: NaN, 
-                    data : NaN,
+
+                const [author, data, text] = parts;
+                const finalText = parts.length === 3 ? text : commentText
+
+                comments.push({
+                    text: finalText,
+                    isImportant,
+                    author: parts.length === 3 ? author : NaN,
+                    data: parts.length === 3 ? data : NaN,
+                    importance: (finalText.match(/!/g) || []).length
                 });
-                }
-                
             }
         }
     }
+
     return comments;
+}
+
+function sortComments(comments, sortType) {
+    switch (sortType) {
+        case 'importance':
+            comments.sort((a, b) => b.importance - a.importance)
+                .forEach(c => console.log(c.text));
+            break;
+
+        case 'user':
+            comments
+                .sort((a, b) => {
+                    if (!a.author) return 1;
+                    if (!b.author) return -1;
+                    return a.author.localeCompare(b.author);
+                })
+                .forEach(c => console.log(c.text));
+            break;
+
+        case 'date':
+            comments
+                .sort((a, b) => {
+                    if (!a.data) return 1;
+                    if (!b.data) return -1;
+                    return new Date(b.data) - new Date(a.data);
+                })
+                .forEach(c => console.log(c.text));
+            break;
+
+    }
 }
 
 function processCommand(command) {
@@ -52,13 +79,13 @@ function processCommand(command) {
             process.exit(0);
             break;
         case 'show':
-            for (const line of lines){
+            for (const line of lines) {
                 console.log(line.text)
             }
             break;
 
         case 'important':
-            for (const line of lines){
+            for (const line of lines) {
                 if (line.isImportant) {
                     console.log(line.text);
                 }
@@ -71,13 +98,18 @@ function processCommand(command) {
                 break;
             }
             const username = parts[1].toLowerCase();
-            const userTodos = lines.filter(todo => 
+            const userTodos = lines.filter(todo =>
                 todo.author && todo.author.toLowerCase() === username
             );
-            for (const line of userTodos){
+            for (const line of userTodos) {
                 console.log(line.text)
             }
             break;
+
+        case 'sort':
+            sortComments(lines, parts[1]);
+            break;
+
         default:
             console.log('wrong command');
             break;
